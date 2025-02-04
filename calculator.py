@@ -1,50 +1,68 @@
 import streamlit as st
-import pandas as pd
-import re
-from typing import Dict, Optional
 
-# ------------------------------------------------------------------------------
+# Set page configuration (optional but helps control layout)
+st.set_page_config(
+    page_title="Aceli Incentives Calculator",
+    page_icon="🌍",
+    layout="wide"
+)
+
+# --------------------------------------------------------------------------
 # Inject custom CSS styling for a clean, professional look
-# ------------------------------------------------------------------------------
+# --------------------------------------------------------------------------
 st.markdown(
     """
     <style>
+    /* Remove extra margin/padding at the top of the page */
+    .block-container {
+        padding-top: 1rem;
+    }
+
     /* Global styling */
-    html, body, [class*="css"] {
+    html, body, [class*="css"]  {
         font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
         background-color: #f8f9fa;
         color: #333333;
     }
-    
-    /* Main container */
-    .main-container {
-        background-color: #ffffff;
-        border-radius: 8px;
-        padding: 2rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        margin: 2rem auto;
+
+    /* Center main content if desired */
+    .main-content {
         max-width: 1000px;
+        margin: auto;
+        padding: 2rem;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    
-    /* Title & Subtitle styling */
+
+    /* Title & subtitle styling */
     .title {
         font-size: 2.5rem;
         font-weight: bold;
-        text-align: center;
         margin-bottom: 1rem;
+        text-align: center;
+        color: #333333;
     }
     .subtitle {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         font-weight: 600;
-        margin: 1rem 0;
+        margin: 2rem 0 1rem 0;
+        color: #333333;
     }
-    
+
+    /* HR styling */
+    hr {
+        border: none;
+        border-top: 1px solid #e0e0e0;
+        margin: 1.5rem 0;
+    }
+
     /* Button styling */
     .stButton button {
         background-color: #007bff;
         border: none;
         color: #ffffff;
-        padding: 0.5rem 1rem;
+        padding: 0.6rem 1rem;
         border-radius: 4px;
         font-size: 1rem;
         transition: background-color 0.2s ease;
@@ -52,8 +70,8 @@ st.markdown(
     .stButton button:hover {
         background-color: #0056b3;
     }
-    
-    /* Breakdown container styling */
+
+    /* Calculation breakdown box */
     .breakdown-container {
         background-color: #f1f1f1;
         border-radius: 8px;
@@ -69,24 +87,19 @@ st.markdown(
         margin-bottom: 0.5rem;
         font-size: 1rem;
     }
-    hr {
-        border: 0;
-        border-top: 1px solid #e0e0e0;
-        margin: 1.5rem 0;
-    }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# ------------------------------------------------------------------------------
+# --------------------------------------------------------------------------
 # Incentive Calculation Functions
-# ------------------------------------------------------------------------------
+# --------------------------------------------------------------------------
 def calculate_base_oi(loan_amount, borrower_type):
     if 10000 <= loan_amount <= 99999:
         if borrower_type == "New Borrower":
             return loan_amount * 0.10
-        else:  # Returning or Repeat
+        else:
             return loan_amount * 0.06
     elif 100000 <= loan_amount <= 199999:
         if borrower_type == "New Borrower":
@@ -131,7 +144,7 @@ def calculate_flc(loan_amount, borrower_type, loan_type, impact_areas):
 def calculate_flc_impact_rate(loan_amount, borrower_type, impact_areas, loan_type):
     if impact_areas == 0:
         return 0
-    is_new = borrower_type == "New Borrower"
+    is_new = (borrower_type == "New Borrower")
     rates = {
         "Formal": {
             "New": {1: 0.01, 2: 0.015, 3: 0.02, 4: 0.0225, 5: 0.025, 6: 0.0275, 7: 0.03},
@@ -145,37 +158,88 @@ def calculate_flc_impact_rate(loan_amount, borrower_type, impact_areas, loan_typ
     borrower_category = "New" if is_new else "Returning"
     return rates[loan_type][borrower_category].get(impact_areas, 0)
 
-# ------------------------------------------------------------------------------
-# Main Interface (No PDF Upload, Only Manual Inputs)
-# ------------------------------------------------------------------------------
-with st.container():
-    st.markdown("<div class='main-container'>", unsafe_allow_html=True)
-    st.markdown("<h1 class='title'>🌍 Aceli Incentives Calculator</h1>", unsafe_allow_html=True)
-    
-    # Input Fields: Two-column layout for clarity
-    col1, col2 = st.columns(2)
-    with col1:
-        loan_amount = st.number_input('Loan Amount ($)', 
-                                      min_value=10000,
-                                      max_value=500000,
-                                      step=1000,
-                                      value=10000)
-        borrower_type = st.selectbox('Borrower Type', 
-                                     ['New Borrower', 'Returning Borrower', 'Repeat Borrower'])
-    with col2:
-        loan_type = st.selectbox('Loan Type', ['Formal', 'Informal'])
-        impact_areas = st.slider('Number of Impact Areas', 0, 7, 0)
-    
-    st.markdown("<hr>", unsafe_allow_html=True)
-    
-    st.markdown("<h2 class='subtitle'>Additional Impact Areas</h2>", unsafe_allow_html=True)
-    wob = st.checkbox('Women-Owned Business (WOB)')
-    yob = st.checkbox('Youth-Owned Business (YOB)')
-    cne = st.checkbox('Climate & Environment (C&E)')
-    climate_tech = st.checkbox('Climate Tech')
-    
-    additional_impacts = []
-    if wob: additional_impacts.append('WOB')
+# --------------------------------------------------------------------------
+# Main App Layout
+# --------------------------------------------------------------------------
+# Wrap the primary UI in a custom "main-content" div for styling
+st.markdown("<div class='main-content'>", unsafe_allow_html=True)
+
+st.markdown("<h1 class='title'>Aceli Incentives Calculator</h1>", unsafe_allow_html=True)
+
+col1, col2 = st.columns(2)
+with col1:
+    loan_amount = st.number_input(
+        'Loan Amount ($)',
+        min_value=10000,
+        max_value=500000,
+        step=1000,
+        value=10000
+    )
+    borrower_type = st.selectbox(
+        'Borrower Type',
+        ['New Borrower', 'Returning Borrower', 'Repeat Borrower']
+    )
+with col2:
+    loan_type = st.selectbox('Loan Type', ['Formal', 'Informal'])
+    impact_areas = st.slider('Number of Impact Areas', 0, 7, 0)
+
+st.markdown("<hr>", unsafe_allow_html=True)
+st.markdown("<h2 class='subtitle'>Additional Impact Areas</h2>", unsafe_allow_html=True)
+
+wob = st.checkbox('Women-Owned Business (WOB)')
+yob = st.checkbox('Youth-Owned Business (YOB)')
+cne = st.checkbox('Climate & Environment (C&E)')
+climate_tech = st.checkbox('Climate Tech')
+
+# Collect additional impacts
+additional_impacts = []
+if wob: additional_impacts.append('WOB')
+if yob: additional_impacts.append('YOB')
+if cne: additional_impacts.append('C&E')
+if climate_tech: additional_impacts.append('Climate Tech')
+
+st.markdown("<hr>", unsafe_allow_html=True)
+
+# --------------------------------------------------------------------------
+# Calculate Incentives Button
+# --------------------------------------------------------------------------
+if st.button("Calculate Incentives"):
+    # Perform calculations
+    base_oi = calculate_base_oi(loan_amount, borrower_type)
+    impact_bonus = calculate_impact_areas_bonus(loan_amount, borrower_type, impact_areas)
+    additional_oi = calculate_additional_incentives(additional_impacts)
+    total_oi = base_oi + impact_bonus + additional_oi
+    flc = calculate_flc(loan_amount, borrower_type, loan_type, impact_areas)
+    combined_total = total_oi + flc
+
+    # Render a fully styled calculation breakdown
+    breakdown_html = f"""
+    <div class="breakdown-container">
+        <div class="breakdown-title">Loan Details</div>
+        <div class="breakdown-item"><strong>Loan Amount:</strong> ${loan_amount:,.2f}</div>
+        <div class="breakdown-item"><strong>Borrower Type:</strong> {borrower_type}</div>
+        <div class="breakdown-item"><strong>Loan Type:</strong> {loan_type}</div>
+        <div class="breakdown-item"><strong>Number of Impact Areas:</strong> {impact_areas}</div>
+        <div class="breakdown-item"><strong>Additional Impact Areas:</strong> {', '.join(additional_impacts) if additional_impacts else 'None'}</div>
+
+        <hr>
+
+        <div class="breakdown-title">Incentives Calculations</div>
+        <div class="breakdown-item"><strong>Base OI:</strong> ${base_oi:,.2f}</div>
+        <div class="breakdown-item"><strong>Impact Areas Bonus:</strong> ${impact_bonus:,.2f}</div>
+        <div class="breakdown-item"><strong>Additional Impact OI:</strong> ${additional_oi:,.2f}</div>
+        <div class="breakdown-item"><strong>Total OI:</strong> ${total_oi:,.2f}</div>
+        <div class="breakdown-item"><strong>Total FLC:</strong> ${flc:,.2f}</div>
+
+        <hr>
+
+        <div class="breakdown-title">Combined Total Incentives</div>
+        <div class="breakdown-item"><strong>(OI + FLC):</strong> ${combined_total:,.2f}</div>
+    </div>
+    """
+    st.markdown(breakdown_html, unsafe_allow_html=True)
+
+st.markdown("</div>", unsafe_allow_html=True)
 
 
 
