@@ -190,7 +190,7 @@ if st.button('Calculate Incentives'):
 
 # Add to your main() function:
 def main():
-    st.title("Aceli Loan Incentive Calculator")
+    st.title("🌍 Aceli Incentives Calculator")
     
     # Add file uploader
     uploaded_file = st.file_uploader("Upload Loan Document (PDF)", type=['pdf'])
