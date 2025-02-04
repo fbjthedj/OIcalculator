@@ -4,6 +4,76 @@ import pdfplumber
 import re
 from typing import Dict, Optional
 
+# ---------------------------
+# Inject custom CSS styling
+# ---------------------------
+st.markdown(
+    """
+    <style>
+    /* Global styling */
+    html, body, [class*="css"]  {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        background-color: #f8f9fa;
+    }
+
+    /* Main container styling */
+    .main {
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        margin: 2rem auto;
+        max-width: 1200px;
+    }
+
+    /* Header styling */
+    h1 {
+        color: #333333;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    h2, h3, h4, h5, h6 {
+        color: #333333;
+        font-weight: 600;
+    }
+
+    /* Card styling for metrics (if you choose to wrap metrics in a container) */
+    .metric {
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Button styling */
+    .stButton button {
+        background-color: #007bff;
+        border: none;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-size: 1rem;
+        transition: background-color 0.2s ease;
+    }
+    .stButton button:hover {
+        background-color: #0056b3;
+    }
+
+    /* Additional spacing for Streamlit columns */
+    [data-testid="stHorizontalBlock"] > div {
+        padding: 1rem;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# ---------------------------
+# Application Functions
+# ---------------------------
 def calculate_base_oi(loan_amount, borrower_type):
     # First table calculations
     if 10000 <= loan_amount <= 99999:
@@ -101,98 +171,102 @@ def extract_loan_details(text: str) -> Dict[str, Optional[str]]:
     
     return results
 
-# Set up the Streamlit interface
-st.title('Aceli Africa Incentives Calculator')
+# ---------------------------
+# Streamlit Interface
+# ---------------------------
+# Wrap the content in a styled container
+with st.container():
+    st.title('🌍 Aceli Incentives Calculator')
 
-# Input fields
-col1, col2 = st.columns(2)
+    # Input fields arranged in two columns
+    col1, col2 = st.columns(2)
 
-with col1:
-    loan_amount = st.number_input('Loan Amount ($)', 
-                                 min_value=10000,
-                                 max_value=500000,
-                                 step=1000,
-                                 value=10000)
-    borrower_type = st.selectbox('Borrower Type', 
-                                ['New Borrower', 'Returning Borrower', 'Repeat Borrower'])
-    loan_type = st.selectbox('Loan Type',
-                            ['Formal', 'Informal'])
-    impact_areas = st.slider('Number of Impact Areas', 0, 7, 0)
+    with col1:
+        loan_amount = st.number_input('Loan Amount ($)', 
+                                      min_value=10000,
+                                      max_value=500000,
+                                      step=1000,
+                                      value=10000)
+        borrower_type = st.selectbox('Borrower Type', 
+                                     ['New Borrower', 'Returning Borrower', 'Repeat Borrower'])
+        loan_type = st.selectbox('Loan Type',
+                                 ['Formal', 'Informal'])
+        impact_areas = st.slider('Number of Impact Areas', 0, 7, 0)
 
-with col2:
-    st.write('Additional Impact Areas:')
-    wob = st.checkbox('Women-Owned Business (WOB)')
-    yob = st.checkbox('Youth-Owned Business (YOB)')
-    cne = st.checkbox('Climate & Environment (C&E)')
-    climate_tech = st.checkbox('Climate Tech')
+    with col2:
+        st.write('Additional Impact Areas:')
+        wob = st.checkbox('Women-Owned Business (WOB)')
+        yob = st.checkbox('Youth-Owned Business (YOB)')
+        cne = st.checkbox('Climate & Environment (C&E)')
+        climate_tech = st.checkbox('Climate Tech')
 
-# Calculate additional impacts
-additional_impacts = []
-if wob: additional_impacts.append('WOB')
-if yob: additional_impacts.append('YOB')
-if cne: additional_impacts.append('C&E')
-if climate_tech: additional_impacts.append('Climate Tech')
+    # Calculate additional impacts
+    additional_impacts = []
+    if wob: additional_impacts.append('WOB')
+    if yob: additional_impacts.append('YOB')
+    if cne: additional_impacts.append('C&E')
+    if climate_tech: additional_impacts.append('Climate Tech')
 
-# Calculate incentives
-if st.button('Calculate Incentives'):
-    if loan_amount < 10000:
-        st.error('Loan amount must be at least $10,000')
-    else:
-        # Calculate OI
-        base_oi = calculate_base_oi(loan_amount, borrower_type)
-        impact_bonus = calculate_impact_areas_bonus(loan_amount, borrower_type, impact_areas)
-        additional_oi = calculate_additional_incentives(additional_impacts)
-        total_oi = base_oi + impact_bonus + additional_oi
+    # Calculate incentives when button is clicked
+    if st.button('Calculate Incentives'):
+        if loan_amount < 10000:
+            st.error('Loan amount must be at least $10,000')
+        else:
+            # Calculate Origination Incentive (OI)
+            base_oi = calculate_base_oi(loan_amount, borrower_type)
+            impact_bonus = calculate_impact_areas_bonus(loan_amount, borrower_type, impact_areas)
+            additional_oi = calculate_additional_incentives(additional_impacts)
+            total_oi = base_oi + impact_bonus + additional_oi
 
-        # Calculate FLC
-        flc = calculate_flc(loan_amount, borrower_type, loan_type, impact_areas)
-        
-        # Calculate Combined Total
-        combined_total = total_oi + flc
+            # Calculate Financial Loss Cover (FLC)
+            flc = calculate_flc(loan_amount, borrower_type, loan_type, impact_areas)
+            
+            # Combined Total Incentives
+            combined_total = total_oi + flc
 
-        # Display results in a clearer hierarchy
-        st.header('Total Incentives')
-        st.metric('Combined Total (OI + FLC)', f'${combined_total:,.2f}')
-        
-        # Show OI breakdown
-        st.subheader('Origination Incentive (OI)')
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            st.metric('Base OI', f'${base_oi:,.2f}')
-        with col2:
-            st.metric('Impact Areas Bonus', f'${impact_bonus:,.2f}')
-        with col3:
-            st.metric('Additional Impact OI', f'${additional_oi:,.2f}')
-        with col4:
-            st.metric('Total OI', f'${total_oi:,.2f}')
+            # Display results
+            st.header('Total Incentives')
+            st.metric('Combined Total (OI + FLC)', f'${combined_total:,.2f}')
+            
+            st.subheader('Origination Incentive (OI)')
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric('Base OI', f'${base_oi:,.2f}')
+            with col2:
+                st.metric('Impact Areas Bonus', f'${impact_bonus:,.2f}')
+            with col3:
+                st.metric('Additional Impact OI', f'${additional_oi:,.2f}')
+            with col4:
+                st.metric('Total OI', f'${total_oi:,.2f}')
 
-        # Show FLC separately below
-        st.subheader('Financial Loss Cover (FLC)')
-        st.metric('Total FLC', f'${flc:,.2f}')
+            st.subheader('Financial Loss Cover (FLC)')
+            st.metric('Total FLC', f'${flc:,.2f}')
 
-        # Display calculation breakdown
-        st.subheader('Calculation Breakdown')
-        st.write(f"""
-        Loan Details:
-        - Loan Amount: ${loan_amount:,.2f}
-        - Borrower Type: {borrower_type}
-        - Loan Type: {loan_type}
-        - Number of Impact Areas: {impact_areas}
-        - Additional Impact Areas: {', '.join(additional_impacts) if additional_impacts else 'None'}
+            st.subheader('Calculation Breakdown')
+            st.write(f"""
+            **Loan Details:**
+            - Loan Amount: ${loan_amount:,.2f}
+            - Borrower Type: {borrower_type}
+            - Loan Type: {loan_type}
+            - Number of Impact Areas: {impact_areas}
+            - Additional Impact Areas: {', '.join(additional_impacts) if additional_impacts else 'None'}
 
-        Total Incentives: ${combined_total:,.2f}
-        - Origination Incentive (OI): ${total_oi:,.2f}
-          * Base OI: ${base_oi:,.2f}
-          * Impact Areas Bonus: ${impact_bonus:,.2f}
-          * Additional Impact OI: ${additional_oi:,.2f}
-        - Financial Loss Cover (FLC): ${flc:,.2f}
-        """)
+            **Totals:**
+            - Combined Incentives: ${combined_total:,.2f}
+              - Origination Incentive (OI): ${total_oi:,.2f}
+                - Base OI: ${base_oi:,.2f}
+                - Impact Areas Bonus: ${impact_bonus:,.2f}
+                - Additional Impact OI: ${additional_oi:,.2f}
+              - Financial Loss Cover (FLC): ${flc:,.2f}
+            """)
 
-# Add to your main() function:
+# ---------------------------
+# Optional: Main function for additional workflow
+# ---------------------------
 def main():
     st.title("🌍 Aceli Incentives Calculator")
     
-    # Add file uploader
+    # File uploader for PDF documents
     uploaded_file = st.file_uploader("Upload Loan Document (PDF)", type=['pdf'])
     
     if uploaded_file:
@@ -203,7 +277,6 @@ def main():
             # Extract loan details
             loan_details = extract_loan_details(text_content)
             
-            # Display extracted information for verification
             st.subheader("Extracted Loan Details")
             st.write("Please verify the extracted information:")
             
@@ -223,8 +296,7 @@ def main():
             
             # ... rest of your existing input fields ...
 
-    # Add requirements to requirements.txt:
-    # pdfplumber>=0.10.0
-    # python-dateutil>=2.8.2
+if __name__ == "__main__":
+    main()
 
 
