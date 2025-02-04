@@ -62,6 +62,7 @@ st.markdown("""
 
 .stButton > button:hover {
     background-color: #27ae60;  /* A slightly darker green for hover state */
+    color: white;
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
