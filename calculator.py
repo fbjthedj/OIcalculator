@@ -49,22 +49,22 @@ st.markdown("""
     }
 
     /* Button Styling */
-    .stButton > button {
-        background-color: #3498db;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        padding: 10px 20px;
-        font-size: 1rem;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
+   .stButton > button {
+    background-color: #2ecc71;  /* A fresh, agricultural green */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
 
-    .stButton > button:hover {
-        background-color: #2980b9;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
+.stButton > button:hover {
+    background-color: #27ae60;  /* A slightly darker green for hover state */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
 
     /* Results Container */
     .result-container {
