@@ -51,7 +51,7 @@ st.markdown("""
     /* Button Styling */
    .stButton > button {
     background-color: #2ecc71;  /* A fresh, agricultural green */
-    color: white;
+    color: white !important;
     border: none;
     border-radius: 6px;
     padding: 10px 20px;
@@ -62,7 +62,7 @@ st.markdown("""
 
 .stButton > button:hover {
     background-color: #27ae60;  /* A slightly darker green for hover state */
-    color: white;
+    color: white !important;
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
