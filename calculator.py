@@ -1,90 +1,88 @@
 import streamlit as st
 
-# -- Set up the page and layout
+# Page configuration
 st.set_page_config(
     page_title="Aceli Incentives Calculator",
-    page_icon="🌍",
+    page_icon="💰",
     layout="wide"
 )
 
-# ------------------------------------------------------------------------------
-# Inject custom CSS styling
-# ------------------------------------------------------------------------------
-st.markdown(
-    """
+# Custom CSS Styling
+st.markdown("""
     <style>
-    /* Remove extra padding/margin at the top */
-    .block-container {
-        padding-top: 1rem;
+    /* Global Styling */
+    body {
+        font-family: 'Inter', 'Helvetica Neue', sans-serif;
+        background-color: #f4f6f9;
     }
 
-    /* Global styling */
-    html, body, [class*="css"] {
-        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        background-color: #f8f9fa;
-        color: #333333;
-    }
-
-    /* Center main content */
+    /* Main Container */
     .main-content {
-        max-width: 1000px;
-        margin: auto;
+        max-width: 900px;
+        margin: 0 auto;
         padding: 2rem;
-        background-color: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     }
 
-    /* Title styling */
+    /* Headings */
     .title {
         font-size: 2.5rem;
-        font-weight: bold;
-        margin-bottom: 1rem;
+        font-weight: 700;
+        color: #2c3e50;
         text-align: center;
-        color: #333333;
+        margin-bottom: 1.5rem;
     }
 
-    /* Subtitle styling */
     .subtitle {
-        font-size: 1.4rem;
+        font-size: 1.6rem;
         font-weight: 600;
-        margin-top: 2rem;
+        color: #34495e;
+        margin-top: 1.5rem;
         margin-bottom: 1rem;
-        color: #333333;
     }
 
-    /* Button styling */
-    .stButton button {
-        background-color: #007bff;
+    /* Form Inputs */
+    .stNumberInput, .stSelectbox, .stSlider {
+        margin-bottom: 1rem;
+    }
+
+    /* Button Styling */
+    .stButton > button {
+        background-color: #3498db;
+        color: white;
         border: none;
-        color: #ffffff;
-        padding: 0.6rem 1rem;
-        border-radius: 4px;
+        border-radius: 6px;
+        padding: 10px 20px;
         font-size: 1rem;
-        transition: background-color 0.2s ease;
-    }
-    .stButton button:hover {
-        background-color: #0056b3;
+        font-weight: 500;
+        transition: all 0.3s ease;
     }
 
-    /* Gray container for breakdowns */
-    .breakdown-container {
-        background-color: #f1f1f1;
-        border-radius: 8px;
-        padding: 1.5rem;
-        margin-top: 2rem;
+    .stButton > button:hover {
+        background-color: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
-    .breakdown-container h3 {
-        margin-top: 0;
+
+    /* Results Container */
+    .result-container {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .result-container hr {
+        border: none;
+        border-top: 1px solid #e0e0e0;
+        margin: 1rem 0;
     }
     </style>
-    """,
-    unsafe_allow_html=True
-)
+    """, unsafe_allow_html=True)
 
-# ------------------------------------------------------------------------------
-# Incentive Calculation Functions
-# ------------------------------------------------------------------------------
+# Calculation Functions (Unchanged from previous code)
 def calculate_base_oi(loan_amount, borrower_type):
     if 10000 <= loan_amount <= 99999:
         if borrower_type == "New Borrower":
@@ -148,85 +146,110 @@ def calculate_flc_impact_rate(loan_amount, borrower_type, impact_areas, loan_typ
     borrower_category = "New" if is_new else "Returning"
     return rates[loan_type][borrower_category].get(impact_areas, 0)
 
-# ------------------------------------------------------------------------------
-# Main UI (No raw HTML display)
-# ------------------------------------------------------------------------------
-# Wrap everything in a styled container
-st.markdown("<div class='main-content'>", unsafe_allow_html=True)
+# Main Application
+def main():
+    st.markdown("<div class='main-content'>", unsafe_allow_html=True)
+    
+    # Title
+    st.markdown("<h1 class='title'>Aceli Incentives Calculator</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #7f8c8d; margin-bottom: 1.5rem;'>Calculate your loan incentives with ease</p>", unsafe_allow_html=True)
 
-st.markdown("<h1 class='title'>Aceli Incentives Calculator</h1>", unsafe_allow_html=True)
+    # Input Columns
+    col1, col2 = st.columns(2)
+    with col1:
+        loan_amount = st.number_input(
+            'Loan Amount ($)', 
+            min_value=10000, 
+            max_value=1000000, 
+            step=1000, 
+            value=10000,
+            help="Enter the total loan amount between $10,000 and $1,000,000"
+        )
+        borrower_type = st.selectbox(
+            'Borrower Type', 
+            ['New Borrower', 'Returning Borrower', 'Repeat Borrower'],
+            help="Select the type of borrower based on your lending history"
+        )
 
-# -- Two columns for basic inputs
-col1, col2 = st.columns(2)
-with col1:
-    loan_amount = st.number_input(
-        'Loan Amount ($)',
-        min_value=10000,
-        max_value=500000,
-        step=1000,
-        value=10000
-    )
-    borrower_type = st.selectbox(
-        'Borrower Type',
-        ['New Borrower', 'Returning Borrower', 'Repeat Borrower']
-    )
-with col2:
-    loan_type = st.selectbox('Loan Type', ['Formal', 'Informal'])
-    impact_areas = st.slider('Number of Impact Areas', 0, 7, 0)
+    with col2:
+        loan_type = st.selectbox(
+            'Loan Type', 
+            ['Formal', 'Informal'],
+            help="Choose between Formal and Informal loan types"
+        )
+        impact_areas = st.slider(
+            'Number of Impact Areas', 
+            0, 7, 0,
+            help="Select the number of impact areas (0-7) to increase your incentives"
+        )
 
-st.markdown("<hr>", unsafe_allow_html=True)
-st.markdown("<h2 class='subtitle'>Additional Impact Areas</h2>", unsafe_allow_html=True)
+    # Additional Impact Areas
+    st.markdown("<h2 class='subtitle'>Additional Impact Areas</h2>", unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        wob = st.checkbox('Women-Owned Business (WOB)')
+        yob = st.checkbox('Youth-Owned Business (YOB)')
+    
+    with col2:
+        cne = st.checkbox('Climate & Environment (C&E)')
+        climate_tech = st.checkbox('Climate Tech')
 
-wob = st.checkbox('Women-Owned Business (WOB)')
-yob = st.checkbox('Youth-Owned Business (YOB)')
-cne = st.checkbox('Climate & Environment (C&E)')
-climate_tech = st.checkbox('Climate Tech')
+    additional_impacts = []
+    if wob: additional_impacts.append('WOB')
+    if yob: additional_impacts.append('YOB')
+    if cne: additional_impacts.append('C&E')
+    if climate_tech: additional_impacts.append('Climate Tech')
 
-additional_impacts = []
-if wob: additional_impacts.append('WOB')
-if yob: additional_impacts.append('YOB')
-if cne: additional_impacts.append('C&E')
-if climate_tech: additional_impacts.append('Climate Tech')
+    # Calculate Button
+    if st.button("Calculate Incentives"):
+        # Perform calculations
+        base_oi = calculate_base_oi(loan_amount, borrower_type)
+        impact_bonus = calculate_impact_areas_bonus(loan_amount, borrower_type, impact_areas)
+        additional_oi = calculate_additional_incentives(additional_impacts)
+        total_oi = base_oi + impact_bonus + additional_oi
+        flc = calculate_flc(loan_amount, borrower_type, loan_type, impact_areas)
+        combined_total = total_oi + flc
 
-st.markdown("<hr>", unsafe_allow_html=True)
-
-# -- Button to calculate
-if st.button("Calculate Incentives"):
-    # Perform calculations
-    base_oi = calculate_base_oi(loan_amount, borrower_type)
-    impact_bonus = calculate_impact_areas_bonus(loan_amount, borrower_type, impact_areas)
-    additional_oi = calculate_additional_incentives(additional_impacts)
-    total_oi = base_oi + impact_bonus + additional_oi
-    flc = calculate_flc(loan_amount, borrower_type, loan_type, impact_areas)
-    combined_total = total_oi + flc
-
-    # -- Display a user‐friendly, readable breakdown
-    st.markdown("<div class='breakdown-container'>", unsafe_allow_html=True)
-
-    st.markdown("### Loan Details", unsafe_allow_html=True)
-    st.write(f"**Loan Amount:** ${loan_amount:,.2f}")
-    st.write(f"**Borrower Type:** {borrower_type}")
-    st.write(f"**Loan Type:** {loan_type}")
-    st.write(f"**Number of Impact Areas:** {impact_areas}")
-    st.write(f"**Additional Impact Areas:** {', '.join(additional_impacts) if additional_impacts else 'None'}")
-
-    st.markdown("<hr>", unsafe_allow_html=True)
-
-    st.markdown("### Incentives Calculations", unsafe_allow_html=True)
-    st.write(f"**Base OI:** ${base_oi:,.2f}")
-    st.write(f"**Impact Areas Bonus:** ${impact_bonus:,.2f}")
-    st.write(f"**Additional Impact OI:** ${additional_oi:,.2f}")
-    st.write(f"**Total OI:** ${total_oi:,.2f}")
-    st.write(f"**Total FLC:** ${flc:,.2f}")
-
-    st.markdown("<hr>", unsafe_allow_html=True)
-
-    st.markdown("### Combined Total Incentives", unsafe_allow_html=True)
-    st.write(f"**(OI + FLC):** ${combined_total:,.2f}")
+        # Results Display
+        st.markdown("<div class='result-container'>", unsafe_allow_html=True)
+        
+        # Loan Details Section
+        st.markdown("<h3 style='color: #2c3e50; margin-bottom: 1rem;'>🔍 Loan Details</h3>", unsafe_allow_html=True)
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write(f"**Loan Amount:** ${loan_amount:,.2f}")
+            st.write(f"**Borrower Type:** {borrower_type}")
+        with col2:
+            st.write(f"**Loan Type:** {loan_type}")
+            st.write(f"**Impact Areas:** {impact_areas}")
+        
+        st.markdown("<hr>", unsafe_allow_html=True)
+        
+        # Incentives Breakdown
+        st.markdown("<h3 style='color: #2c3e50; margin-bottom: 1rem;'>📊 Incentives Breakdown</h3>", unsafe_allow_html=True)
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write(f"**Base OI:** ${base_oi:,.2f}")
+            st.write(f"**Impact Areas Bonus:** ${impact_bonus:,.2f}")
+        with col2:
+            st.write(f"**Additional Impact OI:** ${additional_oi:,.2f}")
+            st.write(f"**Total OI:** ${total_oi:,.2f}")
+        
+        st.markdown("<hr>", unsafe_allow_html=True)
+        
+        # FLC and Total
+        st.markdown("<h3 style='color: #2c3e50; margin-bottom: 1rem;'>💰 Final Calculation</h3>", unsafe_allow_html=True)
+        st.write(f"**Total FLC:** ${flc:,.2f}")
+        st.markdown(f"<h2 style='color: #27ae60; text-align: center;'>Total Incentives: ${combined_total:,.2f}</h2>", unsafe_allow_html=True)
+        
+        st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-st.markdown("</div>", unsafe_allow_html=True)
+# Run the app
+if __name__ == "__main__":
+    main()
 
 
 
