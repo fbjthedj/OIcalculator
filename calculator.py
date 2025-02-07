@@ -21,16 +21,6 @@ st.markdown("""
         padding: 0;
     }
 
-    /* Main Container */
-    .main-content {
-        max-width: 900px;
-        margin: 50px auto;
-        padding: 2rem 2.5rem;
-        background-color: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-    }
-
     /* Headings */
     .title {
         font-size: 2.5rem;
@@ -48,14 +38,9 @@ st.markdown("""
         margin-bottom: 1rem;
     }
 
-    /* Form Inputs */
-    .stNumberInput, .stSelectbox, .stSlider {
-        margin-bottom: 1rem;
-    }
-
     /* Button Styling */
     .stButton > button {
-        background-color: #2ecc71;
+        background-color: #2ecc71;  /* A fresh, agricultural green */
         color: white !important;
         border: none;
         border-radius: 6px;
@@ -66,29 +51,15 @@ st.markdown("""
     }
 
     .stButton > button:hover {
-        background-color: #27ae60;
+        background-color: #27ae60;  /* A slightly darker green for hover state */
         color: white !important;
         transform: translateY(-2px);
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
-
-    /* Results Container */
-    .result-container {
-        background-color: #f8f9fa;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-top: 1.5rem;
-    }
-
-    .result-container hr {
-        border: none;
-        border-top: 1px solid #e0e0e0;
-        margin: 1rem 0;
-    }
     </style>
     """, unsafe_allow_html=True)
 
-# Calculation Functions (Unchanged from previous code)
+# Calculation Functions (Unchanged)
 def calculate_base_oi(loan_amount, borrower_type):
     if 10000 <= loan_amount <= 99999:
         if borrower_type == "New Borrower":
@@ -154,13 +125,11 @@ def calculate_flc_impact_rate(loan_amount, borrower_type, impact_areas, loan_typ
 
 # Main Application
 def main():
-    st.markdown("<div class='main-content'>", unsafe_allow_html=True)
-    
-    # Title & Description
+    # Title & Description (no extra container)
     st.markdown("<h1 class='title'>Aceli Incentives Calculator</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; color: #7f8c8d; margin-bottom: 1.5rem;'>Calculate your loan incentives with ease</p>", unsafe_allow_html=True)
 
-    # Input Columns for Primary Inputs
+    # Input Columns
     col1, col2 = st.columns(2)
     with col1:
         loan_amount = st.number_input(
@@ -205,7 +174,7 @@ def main():
     if cne: additional_impacts.append('C&E')
     if climate_tech: additional_impacts.append('Climate Tech')
 
-    # Calculate Button
+    # Calculate Button and Results
     if st.button("Calculate Incentives"):
         # Perform calculations
         base_oi = calculate_base_oi(loan_amount, borrower_type)
@@ -215,8 +184,8 @@ def main():
         flc = calculate_flc(loan_amount, borrower_type, loan_type, impact_areas)
         combined_total = total_oi + flc
 
-        # Results Display
-        st.markdown("<div class='result-container'>", unsafe_allow_html=True)
+        # Use horizontal rules for separation instead of container boxes
+        st.markdown("---")
         
         # Loan Details Section
         st.markdown("<h3 style='color: #2c3e50; margin-bottom: 1rem;'>🔍 Loan Details</h3>", unsafe_allow_html=True)
@@ -228,7 +197,7 @@ def main():
             st.write(f"**Loan Type:** {loan_type}")
             st.write(f"**Impact Areas:** {impact_areas}")
         
-        st.markdown("<hr>", unsafe_allow_html=True)
+        st.markdown("---")
         
         # Incentives Breakdown
         st.markdown("<h3 style='color: #2c3e50; margin-bottom: 1rem;'>📊 Incentives Breakdown</h3>", unsafe_allow_html=True)
@@ -240,16 +209,12 @@ def main():
             st.write(f"**Additional Impact OI:** ${additional_oi:,.2f}")
             st.write(f"**Total OI:** ${total_oi:,.2f}")
         
-        st.markdown("<hr>", unsafe_allow_html=True)
+        st.markdown("---")
         
-        # FLC and Final Total
+        # FLC and Final Calculation
         st.markdown("<h3 style='color: #2c3e50; margin-bottom: 1rem;'>💰 Final Calculation</h3>", unsafe_allow_html=True)
         st.write(f"**Total FLC:** ${flc:,.2f}")
         st.markdown(f"<h2 style='color: #27ae60; text-align: center;'>Total Incentives: ${combined_total:,.2f}</h2>", unsafe_allow_html=True)
-        
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown("</div>", unsafe_allow_html=True)
 
 # Run the app
 if __name__ == "__main__":
