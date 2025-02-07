@@ -10,18 +10,23 @@ st.set_page_config(
 # Custom CSS Styling
 st.markdown("""
     <style>
+    /* Import Google Font */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
     /* Global Styling */
     body {
         font-family: 'Inter', 'Helvetica Neue', sans-serif;
         background-color: #f4f6f9;
+        margin: 0;
+        padding: 0;
     }
 
     /* Main Container */
     .main-content {
         max-width: 900px;
-        margin: 0 auto;
-        padding: 2rem;
-        background-color: white;
+        margin: 50px auto;
+        padding: 2rem 2.5rem;
+        background-color: #ffffff;
         border-radius: 12px;
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     }
@@ -49,23 +54,23 @@ st.markdown("""
     }
 
     /* Button Styling */
-   .stButton > button {
-    background-color: #2ecc71;  /* A fresh, agricultural green */
-    color: white !important;
-    border: none;
-    border-radius: 6px;
-    padding: 10px 20px;
-    font-size: 1rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
+    .stButton > button {
+        background-color: #2ecc71;
+        color: white !important;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 20px;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
 
-.stButton > button:hover {
-    background-color: #27ae60;  /* A slightly darker green for hover state */
-    color: white !important;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
+    .stButton > button:hover {
+        background-color: #27ae60;
+        color: white !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
 
     /* Results Container */
     .result-container {
@@ -151,11 +156,11 @@ def calculate_flc_impact_rate(loan_amount, borrower_type, impact_areas, loan_typ
 def main():
     st.markdown("<div class='main-content'>", unsafe_allow_html=True)
     
-    # Title
+    # Title & Description
     st.markdown("<h1 class='title'>Aceli Incentives Calculator</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; color: #7f8c8d; margin-bottom: 1.5rem;'>Calculate your loan incentives with ease</p>", unsafe_allow_html=True)
 
-    # Input Columns
+    # Input Columns for Primary Inputs
     col1, col2 = st.columns(2)
     with col1:
         loan_amount = st.number_input(
@@ -187,11 +192,9 @@ def main():
     # Additional Impact Areas
     st.markdown("<h2 class='subtitle'>Additional Impact Areas</h2>", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
-    
     with col1:
         wob = st.checkbox('Women-Owned Business (WOB)')
         yob = st.checkbox('Youth-Owned Business (YOB)')
-    
     with col2:
         cne = st.checkbox('Climate & Environment (C&E)')
         climate_tech = st.checkbox('Climate Tech')
@@ -239,7 +242,7 @@ def main():
         
         st.markdown("<hr>", unsafe_allow_html=True)
         
-        # FLC and Total
+        # FLC and Final Total
         st.markdown("<h3 style='color: #2c3e50; margin-bottom: 1rem;'>💰 Final Calculation</h3>", unsafe_allow_html=True)
         st.write(f"**Total FLC:** ${flc:,.2f}")
         st.markdown(f"<h2 style='color: #27ae60; text-align: center;'>Total Incentives: ${combined_total:,.2f}</h2>", unsafe_allow_html=True)
