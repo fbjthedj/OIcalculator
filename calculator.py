@@ -188,7 +188,7 @@ def main():
         st.markdown("---")
         
         # Loan Details Section
-        st.markdown("<h3 style='color: #2c3e50; margin-bottom: 1rem;'>🔍 Loan Details</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='color: #2c3e50; margin-bottom: 1rem;'>📈 Loan Details</h3>", unsafe_allow_html=True)
         col1, col2 = st.columns(2)
         with col1:
             st.write(f"**Loan Amount:** ${loan_amount:,.2f}")
@@ -200,7 +200,7 @@ def main():
         st.markdown("---")
         
         # Incentives Breakdown
-        st.markdown("<h3 style='color: #2c3e50; margin-bottom: 1rem;'>📊 Incentives Breakdown</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='color: #2c3e50; margin-bottom: 1rem;'>📝 Incentives Breakdown</h3>", unsafe_allow_html=True)
         col1, col2 = st.columns(2)
         with col1:
             st.write(f"**Base OI:** ${base_oi:,.2f}")
@@ -212,7 +212,7 @@ def main():
         st.markdown("---")
         
         # FLC and Final Calculation
-        st.markdown("<h3 style='color: #2c3e50; margin-bottom: 1rem;'>💰 Final Calculation</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='color: #2c3e50; margin-bottom: 1rem;'>💵 Final Calculation</h3>", unsafe_allow_html=True)
         st.write(f"**Total FLC:** ${flc:,.2f}")
         st.markdown(f"<h2 style='color: #27ae60; text-align: center;'>Total Incentives: ${combined_total:,.2f}</h2>", unsafe_allow_html=True)
 
