@@ -127,7 +127,7 @@ def calculate_flc_impact_rate(loan_amount, borrower_type, impact_areas, loan_typ
 def main():
     # Title & Description (no extra container)
     st.markdown("<h1 class='title'>Aceli Incentives Calculator</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #7f8c8d; margin-bottom: 1.5rem;'>Calculate loan incentives with ease</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #7f8c8d; margin-bottom: 1.5rem;'>Calculate loan incentives for Aceli supported lenders</p>", unsafe_allow_html=True)
 
     # Input Columns
     col1, col2 = st.columns(2)
